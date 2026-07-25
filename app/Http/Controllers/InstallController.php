@@ -59,36 +59,41 @@ class InstallController extends Controller
             'db_password' => ['nullable', 'string'],
         ]);
 
+        // Optional keys may be absent (e.g. SQLite hides host/port/user/pass).
+        $connection = $data['db_connection'];
+        $host = $data['db_host'] ?? '';
+        $port = $data['db_port'] ?? '';
+        $database = $data['db_database'];
+        $username = $data['db_username'] ?? '';
+        $password = $data['db_password'] ?? '';
+
         // Test the connection before persisting it.
         try {
-            if ($data['db_connection'] === 'sqlite') {
-                $path = $data['db_database'];
-                if (! Str::startsWith($path, '/')) {
-                    $path = database_path($path);
+            if ($connection === 'sqlite') {
+                if (! Str::startsWith($database, '/')) {
+                    $database = database_path($database);
                 }
-                if (! file_exists($path)) {
-                    touch($path);
+                if (! file_exists($database)) {
+                    touch($database);
                 }
-                $data['db_database'] = $path;
-                new \PDO('sqlite:'.$path);
+                new \PDO('sqlite:'.$database);
             } else {
-                $driver = $data['db_connection'];
-                $host = $data['db_host'] ?: '127.0.0.1';
-                $port = $data['db_port'] ?: ($driver === 'pgsql' ? '5432' : '3306');
-                $dsn = "{$driver}:host={$host};port={$port};dbname={$data['db_database']}";
-                new \PDO($dsn, $data['db_username'] ?: '', $data['db_password'] ?: '');
+                $host = $host ?: '127.0.0.1';
+                $port = $port ?: ($connection === 'pgsql' ? '5432' : '3306');
+                $dsn = "{$connection}:host={$host};port={$port};dbname={$database}";
+                new \PDO($dsn, $username, $password);
             }
         } catch (\Throwable $e) {
             return back()->withInput()->with('error', 'Database connection failed: '.$e->getMessage());
         }
 
         $this->writeEnv([
-            'DB_CONNECTION' => $data['db_connection'],
-            'DB_HOST' => $data['db_host'] ?: '127.0.0.1',
-            'DB_PORT' => $data['db_port'] ?: ($data['db_connection'] === 'pgsql' ? '5432' : '3306'),
-            'DB_DATABASE' => $data['db_database'],
-            'DB_USERNAME' => $data['db_username'] ?: '',
-            'DB_PASSWORD' => $data['db_password'] ?: '',
+            'DB_CONNECTION' => $connection,
+            'DB_HOST' => $host ?: '127.0.0.1',
+            'DB_PORT' => $port ?: ($connection === 'pgsql' ? '5432' : '3306'),
+            'DB_DATABASE' => $database,
+            'DB_USERNAME' => $username,
+            'DB_PASSWORD' => $password,
         ]);
 
         return redirect()->route('install.admin');
