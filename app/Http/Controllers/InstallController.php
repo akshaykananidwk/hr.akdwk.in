@@ -164,8 +164,9 @@ class InstallController extends Controller
                 Artisan::call('db:seed', ['--class' => 'Database\\Seeders\\DemoSeeder', '--force' => true]);
             }
 
-            // Optimise + lock.
-            Artisan::call('storage:link', []);
+            // Link storage without relying on exec/ln (disabled on many shared hosts).
+            $this->linkStorage();
+
             Artisan::call('config:clear');
             file_put_contents(storage_path('installed'), 'installed at '.now()->toDateTimeString().' v'.Setting::get('app_version', '1.0.0'));
         } catch (\Throwable $e) {
@@ -173,6 +174,35 @@ class InstallController extends Controller
         }
 
         return view('install.done', ['email' => $data['admin_email']]);
+    }
+
+    /**
+     * Create the public/storage symlink without using exec()/ln, which are
+     * disabled on many shared hosts. Never fatal to the installation.
+     */
+    private function linkStorage(): void
+    {
+        $link = public_path('storage');
+        $target = storage_path('app/public');
+
+        if (file_exists($link) || is_link($link)) {
+            return;
+        }
+
+        try {
+            if (function_exists('symlink') && @symlink($target, $link)) {
+                return;
+            }
+        } catch (\Throwable $e) {
+            // symlink disabled — fall through to a real directory.
+        }
+
+        // Fallback: a real directory so uploads at least have a home. Hosts that
+        // block symlinks usually let you point /public/storage at the target
+        // manually; documented in docs/DEPLOYMENT.md.
+        if (! is_dir($link)) {
+            @mkdir($link, 0755, true);
+        }
     }
 
     /**

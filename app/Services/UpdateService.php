@@ -287,7 +287,7 @@ class UpdateService
             return;
         }
 
-        if ($connection === 'mysql') {
+        if ($connection === 'mysql' && $this->canExec()) {
             $file = $this->backupDir().'/database_backup.sql';
             $cmd = sprintf(
                 'mysqldump --host=%s --port=%s --user=%s %s %s > %s 2>/dev/null',
@@ -387,14 +387,30 @@ class UpdateService
 
     private function maybeComposerInstall(): string
     {
-        // Only if a vendor dir wasn't shipped and composer is runnable (rare on shared hosting).
+        // Only if composer is runnable (rare on shared hosting; exec is often disabled).
+        if (! $this->canExec() || ! function_exists('shell_exec')) {
+            return 'Skipped composer (shell disabled on host — ship /vendor with the release if dependencies changed).';
+        }
         $composer = trim((string) @shell_exec('which composer 2>/dev/null'));
         if ($composer === '') {
-            return 'Skipped composer (not available on host — ship /vendor with the repo if dependencies changed).';
+            return 'Skipped composer (not available on host — ship /vendor with the release if dependencies changed).';
         }
         @exec('cd '.escapeshellarg(base_path()).' && '.escapeshellarg($composer).' install --no-dev --no-interaction 2>&1', $out, $code);
 
         return 'Composer install '.($code === 0 ? 'completed.' : 'skipped/failed (non-fatal).');
+    }
+
+    /**
+     * Whether exec() is available (not in disable_functions and not in safe mode).
+     */
+    private function canExec(): bool
+    {
+        if (! function_exists('exec')) {
+            return false;
+        }
+        $disabled = array_map('trim', explode(',', (string) ini_get('disable_functions')));
+
+        return ! in_array('exec', $disabled, true);
     }
 
     private function isExcluded(string $relative, array $list): bool
