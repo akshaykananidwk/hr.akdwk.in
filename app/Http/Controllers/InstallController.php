@@ -121,6 +121,12 @@ class InstallController extends Controller
         @set_time_limit(300);
 
         try {
+            // Ensure an application encryption key exists (shared hosting has no CLI).
+            if (blank(config('app.key'))) {
+                Artisan::call('key:generate', ['--force' => true]);
+                Artisan::call('config:clear');
+            }
+
             // Persist app url if provided.
             if (! empty($data['app_url'])) {
                 $this->writeEnv(['APP_URL' => $data['app_url']]);
