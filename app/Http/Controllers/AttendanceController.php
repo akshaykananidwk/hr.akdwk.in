@@ -53,6 +53,7 @@ class AttendanceController extends Controller
         ])->save();
 
         ActivityLogger::log('attendance.check_in', $attendance, 'Checked in');
+        app(\App\Services\WhatsAppService::class)->attendanceEvent('in', $user, $attendance->check_in_at->format('h:i A'));
 
         return back()->with('success', 'Checked in successfully at '.now()->format('h:i A'));
     }
@@ -87,6 +88,7 @@ class AttendanceController extends Controller
         ])->save();
 
         ActivityLogger::log('attendance.check_out', $attendance, 'Checked out');
+        app(\App\Services\WhatsAppService::class)->attendanceEvent('out', $user, $attendance->check_out_at->format('h:i A'));
 
         return back()->with('success', 'Checked out. Worked '.$hours.' hours today.');
     }

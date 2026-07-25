@@ -58,6 +58,10 @@ class LeaveController extends Controller
         ]);
         ActivityLogger::log('leave.'.$data['decision'], $leave, 'Leave '.$data['decision']);
 
+        if ($data['decision'] === 'approved') {
+            app(\App\Services\WhatsAppService::class)->attendanceEvent('leave', $leave->user);
+        }
+
         return back()->with('success', 'Leave '.$data['decision'].'.');
     }
 }

@@ -45,10 +45,24 @@ class ApplicationSmokeTest extends TestCase
     {
         $admin = $this->admin();
 
-        $this->post('/login', ['email' => $admin->email, 'password' => 'password'])
+        $this->post('/login', ['login' => $admin->email, 'password' => 'password'])
             ->assertRedirect('/dashboard');
 
         $this->actingAs($admin)->get('/dashboard')->assertOk()->assertSee('Dashboard');
+    }
+
+    public function test_staff_can_login_with_phone_number(): void
+    {
+        $user = User::factory()->create([
+            'phone' => '9876543210',
+            'password' => Hash::make('secret123'),
+            'is_active' => true,
+        ]);
+        $user->assignRole('Employee');
+
+        $this->post('/login', ['login' => '9876543210', 'password' => 'secret123'])
+            ->assertRedirect('/dashboard');
+        $this->assertAuthenticatedAs($user);
     }
 
     public function test_roles_and_permissions_are_seeded(): void

@@ -20,6 +20,7 @@ class User extends Authenticatable
         'branch_id', 'department_id', 'designation_id', 'manager_id',
         'date_of_joining', 'status', 'confirmation_date', 'is_active',
         'otp_code', 'otp_expires_at', 'two_factor_enabled', 'locale',
+        'legacy_id', 'salary_type', 'shift_start_time', 'whatsapp_opt_in',
     ];
 
     protected $hidden = ['password', 'remember_token', 'otp_code'];
@@ -34,6 +35,7 @@ class User extends Authenticatable
             'otp_expires_at' => 'datetime',
             'is_active' => 'boolean',
             'two_factor_enabled' => 'boolean',
+            'whatsapp_opt_in' => 'boolean',
         ];
     }
 

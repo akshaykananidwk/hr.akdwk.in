@@ -24,21 +24,29 @@ class LoginController extends Controller
 
     public function login(Request $request): RedirectResponse
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
+        $request->validate([
+            'login' => ['required', 'string'],
             'password' => ['required'],
         ]);
 
+        // Accept either an email address or a phone number (legacy staff log in
+        // with their phone number, exactly like the old attendance system).
+        $identifier = trim($request->input('login'));
+        $field = filter_var($identifier, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
+        if ($field === 'phone') {
+            $identifier = preg_replace('/[^0-9]/', '', $identifier);
+        }
+
+        $credentials = [$field => $identifier, 'password' => $request->input('password')];
         $remember = $request->boolean('remember');
 
         if (! Auth::attempt($credentials, $remember)) {
-            // Log failed attempt if the user exists.
-            if ($user = User::where('email', $credentials['email'])->first()) {
+            if ($user = User::where($field, $identifier)->first()) {
                 $this->recordLogin($user->id, $request, false);
             }
 
             throw ValidationException::withMessages([
-                'email' => __('These credentials do not match our records.'),
+                'login' => __('These credentials do not match our records.'),
             ]);
         }
 
@@ -47,7 +55,7 @@ class LoginController extends Controller
         if (! $user->is_active) {
             Auth::logout();
             throw ValidationException::withMessages([
-                'email' => __('Your account is inactive. Please contact your administrator.'),
+                'login' => __('Your account is inactive. Please contact your administrator.'),
             ]);
         }
 

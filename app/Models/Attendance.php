@@ -13,6 +13,8 @@ class Attendance extends Model
         'date' => 'date',
         'check_in_at' => 'datetime',
         'check_out_at' => 'datetime',
+        'lunch_out_at' => 'datetime',
+        'lunch_in_at' => 'datetime',
         'is_late' => 'boolean',
         'working_hours' => 'decimal:2',
         'overtime_hours' => 'decimal:2',

@@ -22,6 +22,36 @@
         </div></div>
     </div>
     <div class="col-lg-5">
+        <div class="card mb-3"><div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-semibold mb-0"><i class="bi bi-whatsapp text-success me-1"></i>WhatsApp (AK Bulk)</h6>
+                @if(($whatsapp['whatsapp_enabled']->value ?? '0') === '1')<span class="badge bg-success">Enabled</span>@else<span class="badge bg-secondary">Off</span>@endif
+            </div>
+            <form method="POST" action="{{ route('settings.whatsapp') }}">@csrf
+                <div class="form-check form-switch mb-2">
+                    <input type="checkbox" name="whatsapp_enabled" value="1" class="form-check-input" id="waEnabled" {{ ($whatsapp['whatsapp_enabled']->value ?? '0')==='1'?'checked':'' }}>
+                    <label class="form-check-label small" for="waEnabled">Enable WhatsApp notifications</label>
+                </div>
+                <div class="row g-2">
+                    <div class="col-12"><label class="form-label small fw-semibold">API Key</label><input name="whatsapp_api_key" value="{{ $whatsapp['whatsapp_api_key']->value ?? '' }}" class="form-control form-control-sm"></div>
+                    <div class="col-6"><label class="form-label small fw-semibold">Session ID</label><input name="whatsapp_session_id" value="{{ $whatsapp['whatsapp_session_id']->value ?? '' }}" class="form-control form-control-sm"></div>
+                    <div class="col-6"><label class="form-label small fw-semibold">Admin Mobile</label><input name="whatsapp_admin_mobile" value="{{ $whatsapp['whatsapp_admin_mobile']->value ?? '' }}" class="form-control form-control-sm"></div>
+                    <div class="col-12"><label class="form-label small fw-semibold">Group ID</label><input name="whatsapp_group_id" value="{{ $whatsapp['whatsapp_group_id']->value ?? '' }}" class="form-control form-control-sm" placeholder="1234567890@g.us"></div>
+                </div>
+                <hr class="my-2">
+                <p class="small text-muted mb-2">Templates — use <code>{name}</code>, <code>{time}</code>, <code>{date}</code></p>
+                @foreach(['whatsapp_msg_in'=>'IN','whatsapp_msg_out'=>'OUT','whatsapp_msg_lunch_out'=>'Lunch Out','whatsapp_msg_lunch_in'=>'Lunch In','whatsapp_msg_leave'=>'Leave'] as $k=>$label)
+                    <div class="mb-2"><label class="form-label small">{{ $label }}</label><input name="{{ $k }}" value="{{ $whatsapp[$k]->value ?? '' }}" class="form-control form-control-sm"></div>
+                @endforeach
+                <div class="d-flex gap-2 mt-2">
+                    <button class="btn btn-success btn-sm flex-grow-1"><i class="bi bi-save me-1"></i>Save</button>
+                </div>
+            </form>
+            <form method="POST" action="{{ route('settings.whatsapp.test') }}" class="mt-2">@csrf
+                <button class="btn btn-outline-success btn-sm w-100"><i class="bi bi-send me-1"></i>Send Test Group Message</button>
+            </form>
+        </div></div>
+
         <div class="card"><div class="card-body">
             <h6 class="fw-semibold mb-3">Policies</h6>
             <div class="accordion" id="polAcc">

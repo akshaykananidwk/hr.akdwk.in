@@ -28,6 +28,23 @@ class SettingsSeeder extends Seeder
             ['key' => 'current_commit', 'value' => '', 'group' => 'update'],
         ];
 
+        // WhatsApp gateway (AK Bulk WhatsApp — bulk.akdwk.in) + message templates.
+        $whatsapp = [
+            'whatsapp_enabled' => '0',
+            'whatsapp_api_key' => '',
+            'whatsapp_session_id' => '',
+            'whatsapp_group_id' => '',
+            'whatsapp_admin_mobile' => '',
+            'whatsapp_msg_in' => 'Hello {name}, your IN time ({time}) is recorded.',
+            'whatsapp_msg_out' => 'Hello {name}, your OUT time ({time}) is recorded.',
+            'whatsapp_msg_lunch_out' => 'Hello {name}, your LUNCH OUT time is {time}.',
+            'whatsapp_msg_lunch_in' => 'Hello {name}, your LUNCH IN time is {time}.',
+            'whatsapp_msg_leave' => 'Hello {name}, your LEAVE for today is approved.',
+        ];
+        foreach ($whatsapp as $key => $value) {
+            $defaults[] = ['key' => $key, 'value' => $value, 'group' => 'whatsapp'];
+        }
+
         foreach ($defaults as $row) {
             Setting::query()->firstOrCreate(['key' => $row['key']], [
                 'value' => $row['value'],

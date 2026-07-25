@@ -12,10 +12,10 @@
     <form method="POST" action="{{ route('login') }}">
         @csrf
         <div class="mb-3">
-            <label class="form-label small fw-semibold">{{ __('Email') }}</label>
+            <label class="form-label small fw-semibold">{{ __('Phone or Email') }}</label>
             <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                <input type="email" name="email" value="{{ old('email') }}" class="form-control" placeholder="you@akcomputer.in" required autofocus>
+                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                <input type="text" name="login" value="{{ old('login') }}" class="form-control" placeholder="Phone number or email" required autofocus>
             </div>
         </div>
         <div class="mb-3">

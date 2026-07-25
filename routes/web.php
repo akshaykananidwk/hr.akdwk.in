@@ -121,9 +121,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
     Route::post('/settings/policy', [SettingsController::class, 'updatePolicy'])->name('settings.policy');
+    Route::post('/settings/whatsapp', [SettingsController::class, 'updateWhatsapp'])->name('settings.whatsapp');
+    Route::post('/settings/whatsapp/test', [SettingsController::class, 'testWhatsapp'])->name('settings.whatsapp.test');
 
     // Admin: activity log
     Route::get('/activity', [ActivityController::class, 'index'])->name('activity.index');
+
+    // Admin: legacy data import
+    Route::get('/import', [\App\Http\Controllers\ImportController::class, 'index'])->name('import.index');
+    Route::post('/import', [\App\Http\Controllers\ImportController::class, 'run'])->name('import.run');
 
     // Admin: smart auto-update
     Route::prefix('updates')->name('updates.')->group(function () {

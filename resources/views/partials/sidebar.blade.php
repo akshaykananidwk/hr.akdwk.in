@@ -43,6 +43,7 @@
     <div class="nav-section">Admin</div>
     @can('manage settings')
     <a class="nav-link {{ $nav('settings.index') }}" href="{{ route('settings.index') }}"><i class="bi bi-gear"></i> Settings</a>
+    <a class="nav-link {{ $nav('import.*') }}" href="{{ route('import.index') }}"><i class="bi bi-database-up"></i> Import Data</a>
     @endcan
     @can('manage updates')
     <a class="nav-link {{ $nav('updates.*') }}" href="{{ route('updates.index') }}"><i class="bi bi-cloud-arrow-down"></i> System Update</a>
