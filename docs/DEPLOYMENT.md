@@ -89,3 +89,34 @@ php artisan view:cache
 - Keep `storage/installed` in place (blocks the installer).
 - Ensure `.env`, `/storage`, `/vendor` are not web-accessible (they aren't when docroot is `public/`).
 - Rotate the GitHub token if it ever leaks (it is stored encrypted in `settings`).
+
+---
+
+## 9. Troubleshooting: "403 Forbidden" from Apache
+
+`Forbidden — You don't have permission to access this resource. Apache Server at … Port 443`
+
+This is a **web-server** error (before PHP runs). Common causes, most likely first:
+
+1. **Document root is the project root, not `public/`.**
+   Apache finds no index file at the project root and directory listing is off → 403.
+   **Fix (either):**
+   - Point the domain / subdomain document root at the **`public/`** folder (cPanel →
+     *Domains* → set *Document Root* to `.../public`), **or**
+   - Keep the bundled root **`.htaccess`** + **`index.php`** (shipped in this repo) which
+     forward all requests into `public/`. Make sure hidden files were uploaded.
+
+2. **Nothing deployed yet / wrong folder.** Confirm the files are actually in the folder
+   the domain serves, and that `public/index.php` exists there.
+
+3. **Permissions.** Files should be `644`, folders `755`
+   (`find . -type d -exec chmod 755 {} \; ; find . -type f -exec chmod 644 {} \;`).
+   `storage/` and `bootstrap/cache/` must be writable (`755`/`775`).
+
+4. **`.htaccess` disabled.** If the host ignores `.htaccess` (no `AllowOverride All`),
+   the root forwarder won't run — you must set the document root to `public/` instead.
+
+5. **Empty `index`/`DirectoryIndex`.** Ensure `DirectoryIndex index.php` is allowed and an
+   `index.php` exists at the served path.
+
+Once the site loads, go to **`/install`** to run the wizard.

@@ -1,0 +1,23 @@
+# AK Workforce Pro
+# ---------------------------------------------------------------------------
+# BEST PRACTICE: point your domain's document root at the /public folder.
+# This file is a safety net for shared hosting where the domain root is the
+# PROJECT root (or the whole repo was uploaded into public_html). It forwards
+# every request into /public so the app works without changing the docroot.
+# ---------------------------------------------------------------------------
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Don't re-rewrite requests that are already inside /public (prevents loops)
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Never expose a directory listing of the project root
+Options -Indexes
+
+# Block direct web access to sensitive files if they ever sit in the root
+<FilesMatch "^(\.env|\.env\..*|composer\.(json|lock)|artisan|package\.json)$">
+    Require all denied
+</FilesMatch>
